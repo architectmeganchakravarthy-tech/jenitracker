@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Coding Tracker – Taryn Jenifier</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#2563EB;--blue-light:#EFF6FF;--blue-mid:#BFDBFE;
+  --green:#16A34A;--green-l1:#86EFAC;--green-l2:#22C55E;--green-l3:#15803D;
+  --orange:#EA580C;--purple:#7C3AED;--indigo:#4338CA;--teal:#0D9488;
+  --red:#DC2626;--red-light:#FEF2F2;
+  --gray-50:#F8FAFC;--gray-100:#F1F5F9;--gray-200:#E2E8F0;
+  --gray-400:#94A3B8;--gray-500:#64748B;--gray-700:#334155;--gray-900:#0F172A;
+  --sidebar-w:260px;--radius:12px;
+  --shadow:0 1px 4px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.06);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.06);--trans:all .2s ease;
+}
+html{font-size:15px}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--gray-50);color:var(--gray-900);display:flex;min-height:100vh;line-height:1.6}
+
+/* ═══════════════ LOGIN SCREEN (removed) ═══════════════ */
+
+/* ═══════════════ APP SHELL ═══════════════ */
+#appShell{display:flex;width:100%;min-height:100vh}
+#appShell.hidden{display:none}
+
+/* ── Sidebar ── */
+.sidebar{width:var(--sidebar-w);background:#fff;border-right:1px solid var(--gray-200);display:flex;flex-direction:column;padding:20px 0;position:fixed;top:0;left:0;height:100vh;z-index:200;transition:transform .25s ease}
+.sidebar-brand{display:flex;align-items:center;gap:10px;padding:0 20px 20px;border-bottom:1px solid var(--gray-100)}
+.brand-icon{width:38px;height:38px;background:var(--blue);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;letter-spacing:-1px;flex-shrink:0}
+.brand-title{font-weight:800;font-size:15px;color:var(--gray-900);display:block}
+.brand-sub{font-size:11px;color:var(--gray-400);display:block}
+.user-card{display:flex;align-items:center;gap:10px;padding:16px 20px;margin:12px 12px 4px;background:var(--blue-light);border-radius:var(--radius)}
+.user-avatar{width:38px;height:38px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+.user-name{font-size:13px;color:var(--gray-900);display:block}
+.user-role{font-size:11px;color:var(--gray-500);display:block}
+.admin-badge{display:inline-block;background:#7C3AED;color:#fff;font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:99px;letter-spacing:.4px;margin-top:2px}
+.sidebar-nav{padding:12px;display:flex;flex-direction:column;gap:4px;flex:1}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:9px;color:var(--gray-500);text-decoration:none;font-size:14px;font-weight:500;transition:var(--trans);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:inherit}
+.nav-item svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.nav-item:hover{background:var(--gray-100);color:var(--gray-900)}
+.nav-item.active{background:var(--blue-light);color:var(--blue);font-weight:600}
+.sidebar-footer{padding:16px 20px;font-size:12px;color:var(--gray-400);border-top:1px solid var(--gray-100)}
+
+/* ── Main ── */
+.main-content{margin-left:var(--sidebar-w);flex:1;padding:0 28px 40px;width:100%}
+.page-view{display:none}
+.page-view.active{display:block}
+
+/* ── Topbar ── */
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;padding:28px 0 24px;gap:12px;flex-wrap:wrap}
+.hamburger{display:none;background:none;border:none;cursor:pointer;flex-direction:column;gap:5px;padding:4px}
+.hamburger span{display:block;width:22px;height:2px;background:var(--gray-700);border-radius:2px}
+.page-title{font-size:22px;font-weight:800;color:var(--gray-900)}
+.page-sub{font-size:13.5px;color:var(--gray-500);margin-top:2px}
+.page-sub strong{color:var(--blue)}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.date-badge{background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-mid);padding:6px 14px;border-radius:20px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.role-pill{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
+.role-pill.admin{background:#F3E8FF;color:#7C3AED;border:1px solid #DDD6FE}
+.role-pill.viewer{background:#F0FDF4;color:#15803D;border:1px solid #BBF7D0}
+
+/* ── Cards ── */
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:20px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.section-header h2{font-size:16px;font-weight:700;color:var(--gray-900)}
+
+/* ── Admin notice banner ── */
+.admin-notice{
+  background:linear-gradient(90deg,#F3E8FF,#EFF6FF);
+  border:1px solid #DDD6FE;border-radius:10px;
+  padding:12px 18px;margin-bottom:20px;
+  display:flex;align-items:center;gap:10px;font-size:13px;color:var(--gray-700);
+}
+.admin-notice strong{color:var(--purple)}
+.viewer-notice{
+  background:#FFF7ED;border:1px solid #FED7AA;border-radius:10px;
+  padding:12px 18px;margin-bottom:20px;
+  display:flex;align-items:center;gap:10px;font-size:13px;color:#92400E;
+}
+
+/* ── Stats ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:14px;margin-bottom:20px}
+.stat-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 18px;display:flex;align-items:center;gap:14px;border-left:4px solid transparent;transition:var(--trans)}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.10)}
+.stat-card.blue{border-color:var(--blue)}.stat-card.green{border-color:var(--green)}
+.stat-card.orange{border-color:var(--orange)}.stat-card.purple{border-color:var(--purple)}
+.stat-card.indigo{border-color:var(--indigo)}.stat-card.teal{border-color:var(--teal)}
+.stat-icon{font-size:26px;line-height:1}
+.stat-label{font-size:11.5px;color:var(--gray-400);font-weight:500;display:block}
+.stat-value{font-size:26px;font-weight:800;color:var(--gray-900);display:block;line-height:1.2}
+
+/* ── Progress ── */
+.progress-bar-wrap{background:var(--gray-100);border-radius:99px;height:10px;overflow:hidden;margin-bottom:8px}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),#60A5FA);border-radius:99px;transition:width .5s ease}
+.progress-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--gray-400);font-weight:500}
+
+/* ── Heatmap ── */
+.heatmap-legend{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--gray-400)}
+.legend-box{width:14px;height:14px;border-radius:3px;display:inline-block}
+.l0{background:var(--gray-200)}.l1{background:var(--green-l1)}.l2{background:var(--green-l2)}.l3{background:var(--green-l3)}
+.heatmap-months{display:flex;gap:0;font-size:10.5px;color:var(--gray-400);margin-bottom:4px;padding-left:2px}
+.heatmap-months span{flex:1}
+.heatmap-grid{display:grid;grid-template-rows:repeat(7,14px);grid-auto-flow:column;gap:3px;overflow-x:auto;padding-bottom:4px}
+.hm-cell{width:14px;height:14px;border-radius:3px;background:var(--gray-200);cursor:pointer;transition:transform .1s;position:relative}
+.hm-cell:hover{transform:scale(1.3);z-index:10}
+.hm-cell[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:var(--gray-900);color:#fff;font-size:10px;padding:3px 7px;border-radius:6px;white-space:nowrap;z-index:999;pointer-events:none}
+.hm-cell.l1{background:var(--green-l1)}.hm-cell.l2{background:var(--green-l2)}.hm-cell.l3{background:var(--green-l3)}
+
+/* ── Table ── */
+.table-wrap{overflow-x:auto}
+.topic-table{width:100%;border-collapse:collapse;font-size:13.5px}
+.topic-table th{text-align:left;padding:10px 14px;background:var(--gray-50);color:var(--gray-500);font-weight:600;border-bottom:2px solid var(--gray-200);white-space:nowrap}
+.topic-table td{padding:11px 14px;border-bottom:1px solid var(--gray-100);color:var(--gray-700)}
+.topic-table tr:last-child td{border-bottom:none}
+.topic-table tr:hover td{background:var(--gray-50)}
+.empty-row td{text-align:center;color:var(--gray-400);padding:30px}
+.empty-row td span{color:var(--blue);text-decoration:underline;cursor:pointer}
+.mini-bar-wrap{background:var(--gray-200);border-radius:99px;height:6px;width:100px}
+.mini-bar{height:6px;border-radius:99px;background:var(--blue)}
+
+/* ── Form (admin only) ── */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-bottom:20px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group label{font-size:12.5px;font-weight:600;color:var(--gray-700)}
+.optional{font-weight:400;color:var(--gray-400);font-size:11px}
+.form-group input,.form-group select{padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:13.5px;font-family:inherit;color:var(--gray-900);background:#fff;outline:none;transition:border-color .2s}
+.form-group input:focus,.form-group select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.10)}
+.form-group input::placeholder{color:var(--gray-400)}
+.btn-add{display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:#fff;border:none;border-radius:9px;padding:11px 22px;font-size:14px;font-weight:600;cursor:pointer;transition:var(--trans);font-family:inherit}
+.btn-add:hover{background:#1D4ED8;transform:translateY(-1px)}
+
+/* ── Filter ── */
+.filter-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:14px 18px}
+.filter-group{flex:1;min-width:160px}
+.filter-group input,.filter-group select{width:100%;padding:8px 12px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:13px;font-family:inherit;color:var(--gray-900);background:#fff;outline:none;transition:border-color .2s}
+.filter-group input:focus,.filter-group select:focus{border-color:var(--blue)}
+
+/* ── Q Cards ── */
+.q-day-group{margin-bottom:24px}
+.q-day-label{font-size:12.5px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.q-day-label::after{content:'';flex:1;height:1px;background:var(--gray-200)}
+.q-card{background:#fff;border:1.5px solid var(--gray-200);border-radius:var(--radius);padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:10px;transition:var(--trans);box-shadow:var(--shadow-sm)}
+.q-card:hover{border-color:var(--blue-mid);box-shadow:var(--shadow)}
+.q-card.completed{background:#F0FDF4;border-color:#BBF7D0}
+.q-check-wrap{flex-shrink:0}
+.q-check{width:20px;height:20px;cursor:pointer;accent-color:var(--blue)}
+.q-check:disabled{cursor:not-allowed;opacity:.5}
+.q-body{flex:1;min-width:0}
+.q-name{font-size:14.5px;font-weight:600;color:var(--gray-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q-card.completed .q-name{text-decoration:line-through;color:var(--gray-400)}
+.q-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:5px}
+.q-tag{font-size:11px;font-weight:600;padding:2px 9px;border-radius:99px}
+.tag-topic{background:#EFF6FF;color:var(--blue)}.tag-platform{background:#FEF9C3;color:#92400E}
+.tag-easy{background:#DCFCE7;color:#15803D}.tag-medium{background:#FEF3C7;color:#B45309}.tag-hard{background:#FEE2E2;color:#B91C1C}
+.q-link a{font-size:11.5px;color:var(--blue);text-decoration:none;display:inline-flex;align-items:center;gap:3px}
+.q-link a:hover{text-decoration:underline}
+.q-actions{display:flex;gap:6px;flex-shrink:0}
+.btn-delete{background:none;border:1.5px solid var(--gray-200);border-radius:7px;padding:5px 10px;cursor:pointer;font-size:13px;color:var(--gray-400);transition:var(--trans)}
+.btn-delete:hover{border-color:#FCA5A5;color:#EF4444;background:#FEF2F2}
+.empty-questions{text-align:center;padding:60px 20px;color:var(--gray-400)}
+.empty-questions .empty-icon{font-size:48px;margin-bottom:12px}
+.empty-questions p{font-size:14px}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--gray-900);color:#fff;padding:12px 20px;border-radius:10px;font-size:13.5px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.2);opacity:0;pointer-events:none;transform:translateY(10px);transition:all .25s ease;z-index:9999}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* ── Overlay ── */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:150}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 24px rgba(0,0,0,.15)}
+  .sidebar-overlay.show{display:block}
+  .hamburger{display:flex}
+  .main-content{margin-left:0;padding:0 16px 32px}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .form-grid{grid-template-columns:1fr}
+  .topbar{padding:18px 0 16px}
+  .page-title{font-size:19px}
+  .q-card{flex-wrap:wrap}
+  .login-box{padding:32px 24px}
+}
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .stat-value{font-size:22px}
+  .filter-bar{flex-direction:column}
+  .filter-group{min-width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- Login screen removed: direct access as admin -->
+
+<!-- ═══════════════ APP SHELL ═══════════════ -->
+<div id="appShell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">{ }</div>
+      <div class="brand-text">
+        <span class="brand-title">CodeTrack</span>
+        <span class="brand-sub">Practice Hub</span>
+      </div>
+    </div>
+    <div class="user-card">
+      <div class="user-avatar">TJ</div>
+      <div class="user-info">
+        <span class="user-name"><strong>Taryn Jenifier</strong></span>
+        <span class="user-role" id="sideRole">Viewer</span>
+        <span class="admin-badge" id="sideAdminBadge" style="display:none">ADMIN</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" id="navDash" onclick="showPage('dashboard')">
+        <svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9v9H15v-5H9v5H3z"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" id="navQ" onclick="showPage('questions')">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        Questions
+      </button>
+    </nav>
+    <div class="sidebar-footer" id="sideDate"></div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Main -->
+  <main class="main-content">
+
+    <!-- ─── DASHBOARD ─── -->
+    <div class="page-view active" id="view-dashboard">
+      <header class="topbar">
+        <button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+        <div class="topbar-left">
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-sub">Welcome back, <strong>Taryn Jenifier</strong> 👋</p>
+        </div>
+        <div class="topbar-right">
+          <span class="date-badge" id="dashDate"></span>
+        </div>
+      </header>
+
+      <section class="stats-grid">
+        <div class="stat-card blue"><div class="stat-icon">📋</div><div class="stat-info"><span class="stat-label">Total Added</span><span class="stat-value" id="totalAdded">0</span></div></div>
+        <div class="stat-card green"><div class="stat-icon">✅</div><div class="stat-info"><span class="stat-label">Total Solved</span><span class="stat-value" id="totalSolved">0</span></div></div>
+        <div class="stat-card orange"><div class="stat-icon">⏳</div><div class="stat-info"><span class="stat-label">Remaining</span><span class="stat-value" id="totalRemaining">0</span></div></div>
+        <div class="stat-card purple"><div class="stat-icon">🔥</div><div class="stat-info"><span class="stat-label">Current Streak</span><span class="stat-value" id="currentStreak">0</span></div></div>
+        <div class="stat-card indigo"><div class="stat-icon">🏆</div><div class="stat-info"><span class="stat-label">Longest Streak</span><span class="stat-value" id="longestStreak">0</span></div></div>
+        <div class="stat-card teal"><div class="stat-icon">📊</div><div class="stat-info"><span class="stat-label">Completion</span><span class="stat-value" id="completionPct">0%</span></div></div>
+      </section>
+
+      <section class="card">
+        <div class="section-header"><h2>Overall Progress</h2></div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+        <div class="progress-labels"><span id="progressLabel">0 / 0 solved</span><span id="progressPct2">0%</span></div>
+      </section>
+
+      <section class="card">
+        <div class="section-header">
+          <h2>Activity Heatmap</h2>
+          <div class="heatmap-legend">
+            <span class="legend-box l0"></span><span>0</span>
+            <span class="legend-box l1"></span><span>1</span>
+            <span class="legend-box l2"></span><span>2</span>
+            <span class="legend-box l3"></span><span>2+</span>
+          </div>
+        </div>
+        <div class="heatmap-months" id="heatmapMonths"></div>
+        <div class="heatmap-grid" id="heatmapGrid"></div>
+      </section>
+
+      <section class="card">
+        <div class="section-header"><h2>Topic Progress</h2></div>
+        <div class="table-wrap">
+          <table class="topic-table">
+            <thead><tr><th>Topic</th><th>Total</th><th>Solved</th><th>Remaining</th><th>Progress</th></tr></thead>
+            <tbody id="topicTableBody">
+              <tr class="empty-row"><td colspan="5">No questions yet. <span onclick="showPage('questions')">Add some →</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- ─── QUESTIONS ─── -->
+    <div class="page-view" id="view-questions">
+      <header class="topbar">
+        <button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+        <div class="topbar-left">
+          <h1 class="page-title">Coding Questions</h1>
+          <p class="page-sub">Practice log for <strong>Taryn Jenifier</strong></p>
+        </div>
+        <div class="topbar-right">
+          <span class="date-badge" id="qDate2"></span>
+        </div>
+      </header>
+
+      <!-- Admin: add form -->
+      <div id="addFormSection">
+        <section class="card">
+          <div class="section-header">
+            <h2>Add New Question</h2>
+            <span style="font-size:11.5px;background:#F3E8FF;color:#7C3AED;padding:3px 10px;border-radius:99px;font-weight:600">🔐 Admin Only</span>
+          </div>
+          <div class="form-grid">
+            <div class="form-group"><label for="qDate">Date</label><input type="date" id="qDate"/></div>
+            <div class="form-group">
+              <label for="qTopic">Topic</label>
+              <select id="qTopic">
+                <option value="">Select topic</option>
+                <option>Arrays</option><option>Strings</option><option>Linked List</option>
+                <option>Dynamic Programming</option><option>Trees</option><option>Graphs</option>
+                <option>Recursion</option><option>Sorting</option><option>Binary Search</option>
+                <option>Hashing</option><option>Stacks & Queues</option><option>Math</option>
+                <option>Greedy</option><option>Backtracking</option><option>Two Pointers</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="qPlatform">Platform</label>
+              <select id="qPlatform">
+                <option value="">Select platform</option>
+                <option>LeetCode</option><option>CodeChef</option><option>HackerRank</option>
+                <option>Codeforces</option><option>GeeksforGeeks</option><option>AtCoder</option>
+                <option>HackerEarth</option><option>InterviewBit</option><option>Other</option>
+              </select>
+            </div>
+            <div class="form-group"><label for="qName">Problem Name</label><input type="text" id="qName" placeholder="e.g. Two Sum"/></div>
+            <div class="form-group">
+              <label for="qDiff">Difficulty</label>
+              <select id="qDiff">
+                <option value="">Select difficulty</option>
+                <option value="Easy">Easy</option><option value="Medium">Medium</option><option value="Hard">Hard</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="qLink">Reference Link <span class="optional">(optional)</span></label>
+              <input type="url" id="qLink" placeholder="https://leetcode.com/problems/..."/>
+            </div>
+          </div>
+          <button class="btn-add" onclick="addQuestion()">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+            Add Question
+          </button>
+        </section>
+      </div>
+
+
+
+      <!-- Filters -->
+      <section class="card filter-bar">
+        <div class="filter-group"><input type="text" id="searchInput" placeholder="🔍  Search by problem name…" oninput="renderQuestions()"/></div>
+        <div class="filter-group">
+          <select id="filterTopic" onchange="renderQuestions()">
+            <option value="">All Topics</option>
+            <option>Arrays</option><option>Strings</option><option>Linked List</option>
+            <option>Dynamic Programming</option><option>Trees</option><option>Graphs</option>
+            <option>Recursion</option><option>Sorting</option><option>Binary Search</option>
+            <option>Hashing</option><option>Stacks & Queues</option><option>Math</option>
+            <option>Greedy</option><option>Backtracking</option><option>Two Pointers</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <select id="filterDiff" onchange="renderQuestions()">
+            <option value="">All Difficulties</option>
+            <option>Easy</option><option>Medium</option><option>Hard</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <select id="filterStatus" onchange="renderQuestions()">
+            <option value="">All Status</option>
+            <option value="done">Completed</option>
+            <option value="pending">Pending</option>
+          </select>
+        </div>
+      </section>
+
+      <div id="questionsList"></div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   CODING TRACKER – Taryn Jenifier
+   No-auth single-user mode – LocalStorage
+══════════════════════════════════════════════════ */
+
+/* ─── Always admin ─── */
+let currentRole = 'admin';
+function isAdmin() { return true; }
+
+/* ─── Boot app on load ─── */
+function bootApp() {
+  applyRole();
+  initDates();
+  renderDashboard();
+}
+
+function applyRole() {
+  // Always admin — show add form, hide viewer notice
+  const addSection = document.getElementById('addFormSection');
+  if (addSection) addSection.style.display = 'block';
+  // Sidebar badge
+  document.getElementById('sideRole').textContent = 'Admin';
+  document.getElementById('sideAdminBadge').style.display = 'inline-block';
+  // Role pills (removed from topbar but keep defensive)
+  ['dashRolePill','qRolePill'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = '🔐 Admin';
+    el.className = 'role-pill admin';
+  });
+}
+
+/* ─── Cloud Storage via JSONBin.io ─── */
+// Free shared storage — anyone opening this page sees the same data
+const BIN_ID  = '';          // ← filled automatically on first run
+const API_KEY = '$2a$10$placeholder'; // will be set below
+const STORE   = {
+  binId:  localStorage.getItem('tj_bin_id')  || '',
+  apiKey: '$2a$10$mBwFJMClwdS0p4QUOqEAyuALjAGrW1QAyIfhqMlM8lbLbqJNfcXIi'
+};
+
+let _cache = null; // in-memory cache to avoid extra fetches
+
+async function getQ() {
+  if (_cache) return _cache;
+  if (!STORE.binId) {
+    // First time: load from localStorage fallback
+    const local = JSON.parse(localStorage.getItem('tj_questions') || '[]');
+    _cache = local;
+    return local;
+  }
+  try {
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${STORE.binId}/latest`, {
+      headers: { 'X-Master-Key': STORE.apiKey }
+    });
+    if (!r.ok) throw new Error('fetch failed');
+    const data = await r.json();
+    _cache = data.record.questions || [];
+    return _cache;
+  } catch(e) {
+    console.warn('Cloud fetch failed, using cache', e);
+    return _cache || [];
+  }
+}
+
+async function saveQ(qs) {
+  _cache = qs;
+  if (!STORE.binId) {
+    // Create bin on first save
+    try {
+      const r = await fetch('https://api.jsonbin.io/v3/b', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': STORE.apiKey,
+          'X-Bin-Name': 'tarynjeni-tracker',
+          'X-Bin-Private': 'false'
+        },
+        body: JSON.stringify({ questions: qs })
+      });
+      if (!r.ok) throw new Error('create failed');
+      const data = await r.json();
+      STORE.binId = data.metadata.id;
+      localStorage.setItem('tj_bin_id', STORE.binId);
+      console.log('✅ Cloud bin created:', STORE.binId);
+    } catch(e) {
+      console.warn('Could not create cloud bin, saving locally', e);
+      localStorage.setItem('tj_questions', JSON.stringify(qs));
+    }
+    return;
+  }
+  try {
+    await fetch(`https://api.jsonbin.io/v3/b/${STORE.binId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': STORE.apiKey
+      },
+      body: JSON.stringify({ questions: qs })
+    });
+  } catch(e) {
+    console.warn('Cloud save failed', e);
+    localStorage.setItem('tj_questions', JSON.stringify(qs));
+  }
+}
+
+/* ─── Sync: pull latest from cloud every 30s ─── */
+setInterval(async () => {
+  if (!STORE.binId) return;
+  _cache = null; // clear cache so next getQ fetches fresh
+  if (document.getElementById('view-dashboard').classList.contains('active')) renderDashboard();
+  if (document.getElementById('view-questions').classList.contains('active')) renderQuestions();
+}, 30000);
+
+/* ─── Dates ─── */
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+function fmtDate(s) {
+  if (!s) return '';
+  const [y, m, d] = s.split('-');
+  const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${mo[+m-1]} ${+d}, ${y}`;
+}
+function initDates() {
+  const s = new Date().toLocaleDateString('en-US', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  ['dashDate','qDate2','sideDate'].forEach(id => { const e = document.getElementById(id); if(e) e.textContent = s; });
+  const di = document.getElementById('qDate');
+  if (di) di.valueAsDate = new Date();
+}
+
+/* ─── Navigation ─── */
+function showPage(page) {
+  document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + page).classList.add('active');
+  document.getElementById('navDash').classList.toggle('active', page === 'dashboard');
+  document.getElementById('navQ').classList.toggle('active', page === 'questions');
+  closeSidebar();
+  if (page === 'dashboard') renderDashboard();
+  if (page === 'questions') { applyRole(); renderQuestions(); }
+  window.scrollTo(0, 0);
+}
+
+/* ─── Sidebar ─── */
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('show');
+}
+
+/* ─── Toast ─── */
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* ─── Escape HTML ─── */
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ─── Add Question (admin only) ─── */
+async function addQuestion() {
+  if (!isAdmin()) { toast('🔒 Admin only.'); return; }
+  const date     = document.getElementById('qDate').value;
+  const topic    = document.getElementById('qTopic').value;
+  const platform = document.getElementById('qPlatform').value;
+  const name     = document.getElementById('qName').value.trim();
+  const diff     = document.getElementById('qDiff').value;
+  const link     = document.getElementById('qLink').value.trim();
+
+  if (!date||!topic||!platform||!name||!diff) { toast('⚠️ Please fill all required fields.'); return; }
+
+  toast('⏳ Saving to cloud…');
+  const qs = await getQ();
+  qs.push({ id: Date.now().toString(), date, topic, platform, name, difficulty: diff, link: link||'', completed: false });
+  await saveQ(qs);
+
+  document.getElementById('qTopic').value = '';
+  document.getElementById('qPlatform').value = '';
+  document.getElementById('qName').value = '';
+  document.getElementById('qDiff').value = '';
+  document.getElementById('qLink').value = '';
+
+  toast('✅ Question saved to cloud!');
+  renderQuestions();
+}
+
+/* ─── Toggle Complete (everyone) ─── */
+async function toggleComplete(id) {
+  const qs = await getQ(), q = qs.find(x => x.id === id);
+  if (!q) return;
+  q.completed = !q.completed;
+  await saveQ(qs);
+  renderQuestions();
+}
+
+/* ─── Delete (admin only) ─── */
+async function deleteQuestion(id) {
+  if (!isAdmin()) { toast('🔒 Admin only.'); return; }
+  if (!confirm('Delete this question?')) return;
+  const qs = await getQ();
+  await saveQ(qs.filter(x => x.id !== id));
+  renderQuestions();
+  toast('🗑️ Question deleted.');
+}
+
+/* ─── Render card ─── */
+function renderCard(q) {
+  const dt = `tag-${q.difficulty.toLowerCase()}`;
+  const linkHtml = q.link
+    ? `<div class="q-link"><a href="${esc(q.link)}" target="_blank" rel="noopener">🔗 Reference</a></div>` : '';
+  const delBtn = isAdmin()
+    ? `<button class="btn-delete" onclick="deleteQuestion('${q.id}')" title="Delete">✕</button>` : '';
+  return `
+  <div class="q-card${q.completed?' completed':''}" id="qcard-${q.id}">
+    <div class="q-check-wrap">
+      <input type="checkbox" class="q-check" ${q.completed?'checked':''} onchange="toggleComplete('${q.id}')"/>
+    </div>
+    <div class="q-body">
+      <div class="q-name">${esc(q.name)}</div>
+      <div class="q-meta">
+        <span class="q-tag tag-topic">${esc(q.topic)}</span>
+        <span class="q-tag tag-platform">${esc(q.platform)}</span>
+        <span class="q-tag ${dt}">${esc(q.difficulty)}</span>
+      </div>
+      ${linkHtml}
+    </div>
+    <div class="q-actions">${delBtn}</div>
+  </div>`;
+}
+
+/* ─── Render Questions ─── */
+async function renderQuestions() {
+  const list = document.getElementById('questionsList');
+  if (!list) return;
+  list.innerHTML = `<div class="empty-questions"><div class="empty-icon">⏳</div><p>Loading from cloud…</p></div>`;
+
+  let qs = await getQ();
+  const search  = (document.getElementById('searchInput')?.value||'').toLowerCase();
+  const topic   = document.getElementById('filterTopic')?.value||'';
+  const diff    = document.getElementById('filterDiff')?.value||'';
+  const status  = document.getElementById('filterStatus')?.value||'';
+
+  if (search) qs = qs.filter(q => q.name.toLowerCase().includes(search));
+  if (topic)  qs = qs.filter(q => q.topic === topic);
+  if (diff)   qs = qs.filter(q => q.difficulty === diff);
+  if (status === 'done')    qs = qs.filter(q => q.completed);
+  if (status === 'pending') qs = qs.filter(q => !q.completed);
+
+  if (!qs.length) {
+    list.innerHTML = `<div class="empty-questions"><div class="empty-icon">📭</div><p>No questions found.</p></div>`;
+    return;
+  }
+
+  const byDate = {};
+  qs.forEach(q => { if (!byDate[q.date]) byDate[q.date]=[]; byDate[q.date].push(q); });
+  const dates = Object.keys(byDate).sort((a,b) => b.localeCompare(a));
+  list.innerHTML = dates.map(date =>
+    `<div class="q-day-group">
+      <div class="q-day-label">${fmtDate(date)}</div>
+      ${byDate[date].map(q => renderCard(q)).join('')}
+    </div>`
+  ).join('');
+}
+
+/* ─── Streaks ─── */
+function calcStreaks(qs) {
+  const dates = [...new Set(qs.filter(q=>q.completed).map(q=>q.date))].sort();
+  if (!dates.length) return { current:0, longest:0 };
+  let longest=1, cur=1;
+  for (let i=1;i<dates.length;i++) {
+    const diff = (new Date(dates[i])-new Date(dates[i-1]))/86400000;
+    if (diff===1) { cur++; longest=Math.max(longest,cur); } else cur=1;
+  }
+  const today = todayStr();
+  const yest  = new Date(Date.now()-86400000).toISOString().slice(0,10);
+  const last  = dates[dates.length-1];
+  return { current:(last===today||last===yest)?cur:0, longest };
+}
+
+/* ─── Dashboard ─── */
+async function renderDashboard() {
+  const qs = await getQ();
+  const total  = qs.length;
+  const solved = qs.filter(q=>q.completed).length;
+  const rem    = total - solved;
+  const pct    = total>0 ? Math.round((solved/total)*100) : 0;
+  const { current, longest } = calcStreaks(qs);
+
+  const set = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+  set('totalAdded',     total);
+  set('totalSolved',    solved);
+  set('totalRemaining', rem);
+  set('currentStreak',  current+(current===1?' day':' days'));
+  set('longestStreak',  longest+(longest===1?' day':' days'));
+  set('completionPct',  pct+'%');
+
+  const bar = document.getElementById('progressBar');
+  if (bar) bar.style.width = pct+'%';
+  set('progressLabel', `${solved} / ${total} solved`);
+  set('progressPct2',  pct+'%');
+
+  renderTopicTable(qs);
+  renderHeatmap(qs);
+}
+
+/* ─── Topic Table ─── */
+function renderTopicTable(qs) {
+  const tbody = document.getElementById('topicTableBody');
+  if (!tbody) return;
+  const map = {};
+  qs.forEach(q => {
+    if (!map[q.topic]) map[q.topic]={total:0,solved:0};
+    map[q.topic].total++;
+    if (q.completed) map[q.topic].solved++;
+  });
+  const topics = Object.keys(map).sort();
+  if (!topics.length) {
+    tbody.innerHTML=`<tr class="empty-row"><td colspan="5">No questions yet. <span onclick="showPage('questions')">Add some →</span></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = topics.map(t => {
+    const {total,solved} = map[t]; const rem=total-solved;
+    const pct = total>0?Math.round((solved/total)*100):0;
+    return `<tr>
+      <td><strong>${esc(t)}</strong></td><td>${total}</td>
+      <td style="color:var(--green);font-weight:600">${solved}</td>
+      <td style="color:var(--orange)">${rem}</td>
+      <td><div class="mini-bar-wrap"><div class="mini-bar" style="width:${pct}%"></div></div>
+          <span style="font-size:11px;color:var(--gray-400)">${pct}%</span></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ─── Heatmap ─── */
+function renderHeatmap(qs) {
+  const grid     = document.getElementById('heatmapGrid');
+  const monthsEl = document.getElementById('heatmapMonths');
+  if (!grid) return;
+
+  const solvedMap = {};
+  qs.filter(q=>q.completed).forEach(q => { solvedMap[q.date]=(solvedMap[q.date]||0)+1; });
+
+  const today = new Date();
+  const start = new Date(today);
+  start.setDate(today.getDate()-26*7+1);
+  start.setDate(start.getDate()-start.getDay());
+
+  const cells=[], monthLabels={};
+  const cur = new Date(start);
+
+  while (cur<=today || cells.length%7!==0) {
+    const str   = cur.toISOString().slice(0,10);
+    const count = solvedMap[str]||0;
+    const inRange = cur<=today;
+    const col = Math.floor(cells.length/7);
+    if (cur.getDate()<=7 && inRange) {
+      const mn = cur.toLocaleDateString('en-US',{month:'short'});
+      if (!Object.values(monthLabels).includes(mn)) monthLabels[col]=mn;
+    }
+    let lvl=0;
+    if (inRange && count===1) lvl=1;
+    else if (inRange && count===2) lvl=2;
+    else if (inRange && count>=3) lvl=3;
+    cells.push({str,lvl,inRange,tip:inRange?`${fmtDate(str)}: ${count} solved`:''});
+    cur.setDate(cur.getDate()+1);
+  }
+
+  const totalCols = cells.length/7;
+  if (monthsEl) {
+    let html='';
+    for (let c=0;c<totalCols;c++) html+=`<span style="min-width:17px">${monthLabels[c]||''}</span>`;
+    monthsEl.innerHTML=html;
+  }
+  grid.innerHTML = cells.map(c =>
+    `<div class="hm-cell${c.lvl>0?' l'+c.lvl:''}" data-tip="${c.tip}" style="${!c.inRange?'opacity:.25':''}"></div>`
+  ).join('');
+}
+
+/* ─── Init ─── */
+document.addEventListener('DOMContentLoaded', () => {
+  bootApp();
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) renderDashboard();
+});
+</script>
+</body>
+</html>
